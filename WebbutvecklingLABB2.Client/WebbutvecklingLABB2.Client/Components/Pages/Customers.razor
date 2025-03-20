@@ -1,0 +1,32 @@
+﻿@page "/customers"
+@using WebbutvecklingLABB2.Shared.Models
+@inject HttpClient Http
+
+<h3>Customer List</h3>
+
+@if (customers == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    @foreach (var customer in customers)
+    {
+        <div>
+            <h4>@customer.FirstName @customer.LastName</h4>
+            <p>Email: @customer.Email</p>
+            <p>Phone: @customer.PhoneNumber</p>
+            <p>Address: @customer.Address</p>
+        </div>
+    }
+}
+
+@code {
+    private List<Customer> customers;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Hämta lista med kunder från API:et
+        customers = await Http.GetFromJsonAsync<List<Customer>>("api/customer");
+    }
+}

@@ -1,0 +1,9 @@
+﻿@using Microsoft.AspNetCore.Components.Routing
+@using WebbutvecklingLABB2.Client
+@using WebbutvecklingLABB2.Client.Client.Services
+@inject NavigationManager Navigation
+
+<Router AppAssembly="@typeof(Program).Assembly">
+    <RouteView RouteData="@routeData" />
+    <FocusOnNavigate RouteData="@routeData" />
+</Router>

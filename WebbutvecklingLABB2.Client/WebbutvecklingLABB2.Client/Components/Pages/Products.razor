@@ -1,0 +1,33 @@
+﻿@page "/products"
+@using WebbutvecklingLABB2.Shared.Models
+@inject HttpClient Http
+
+<h3>Product List</h3>
+
+@if (products == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    @foreach (var product in products)
+    {
+        <div>
+            <h4>@product.Name</h4>
+            <p>@product.Description</p>
+            <p>Price: @product.Price</p>
+            <p>Category: @product.Category</p>
+            <p>Status: @(product.IsDiscontinued ? "Discontinued" : "Available")</p>
+        </div>
+    }
+}
+
+@code {
+    private List<Product> products;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Hämta lista med produkter från API:et
+        products = await Http.GetFromJsonAsync<List<Product>>("api/product");
+    }
+}
