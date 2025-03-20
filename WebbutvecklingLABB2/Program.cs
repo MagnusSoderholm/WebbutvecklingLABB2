@@ -5,24 +5,22 @@ using WebbutvecklingLABB2.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// För backend - SQL Server och EF Core
+// Lägg till DbContext och konfiguration för SQL Server
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// För att registrera repositories
+// Registrera repositories i DI container
 builder.Services.AddScoped<IRepository<Product>, ProductRepository>();
 builder.Services.AddScoped<IRepository<Customer>, CustomerRepository>();
 
-// För API
+// Lägg till stöd för API (controllers)
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Lägg till HttpClient för Blazor WebAssembly-klienten
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.Configuration.GetValue<string>("ApiBaseUrl")) });
-
 var app = builder.Build();
 
+// Använd swagger i utvecklingsläge
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

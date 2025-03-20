@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using WebbutvecklingLABB2.Repositories;
-using WebbutvecklingLABB2.Shared.Models;
+using WebbutvecklingLABB2.Models;
 
 namespace WebbutvecklingLABB2.Controllers;
 
