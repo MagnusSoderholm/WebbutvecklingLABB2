@@ -1,0 +1,41 @@
+﻿@page "/orders"
+@using WebbutvecklingLABB2.Models
+@inject HttpClient Http
+
+<h3>Order List</h3>
+
+@if (orders == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    @foreach (var order in orders)
+    {
+        <div>
+            <h4>Order ID: @order.Id</h4>
+            <p>Customer: @order.Customer.FirstName @order.Customer.LastName</p>
+            <p>Order Date: @order.OrderDate.ToString("yyyy-MM-dd HH:mm:ss")</p>
+
+            <h5>Order Items:</h5>
+            <ul>
+                @foreach (var orderItem in order.OrderItems)
+                {
+                    <li>
+                        @orderItem.Product.Name - Quantity: @orderItem.Quantity
+                    </li>
+                }
+            </ul>
+        </div>
+    }
+}
+
+@code {
+    private List<Order> orders;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Hämta lista med orders från API:et
+        orders = await Http.GetFromJsonAsync<List<Order>>("api/orders");
+    }
+}
