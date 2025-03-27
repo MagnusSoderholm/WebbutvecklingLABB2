@@ -2,32 +2,106 @@
 @using WebbutvecklingLABB2.Shared.Models
 @inject HttpClient Http
 
-<h3>Product List</h3>
+<h3>Produktlista</h3>
+
+<div class="mb-3">
+    <button class="btn btn-primary" @onclick="ShowAddProductModal">Lägg till Produkt</button>
+    <input type="text" class="form-control mt-3" @bind="searchTerm" placeholder="Sök produkt..." @oninput="SearchProducts" />
+</div>
 
 @if (products == null)
 {
     <p>Loading...</p>
 }
+else if (!filteredProducts.Any())
+{
+    <p>Inga produkter hittades.</p>
+}
 else
 {
-    @foreach (var product in products)
-    {
-        <div>
-            <h4>@product.Name</h4>
-            <p>@product.Description</p>
-            <p>Price: @product.Price</p>
-            <p>Category: @product.Category</p>
-            <p>Status: @(product.IsDiscontinued ? "Discontinued" : "Available")</p>
-        </div>
-    }
+    <div class="product-list">
+        @foreach (var product in filteredProducts)
+        {
+            <div class="product-card">
+                <h4>@product.Name</h4>
+                <p>@product.Description</p>
+                <p><strong>Pris:</strong> @product.Price SEK</p>
+                <p><strong>Kategori:</strong> @product.Category</p>
+                <p><strong>Status:</strong> @(product.IsDiscontinued ? "Utgått" : "Tillgänglig")</p>
+
+                <button class="btn btn-warning" @onclick="() => EditProduct(product.Id)">Ändra</button>
+                <button class="btn btn-danger" @onclick="() => DeleteProduct(product.Id)">Ta bort</button>
+                <button class="btn btn-secondary" @onclick="() => ToggleDiscontinuedStatus(product.Id)">
+                    @(product.IsDiscontinued ? "Återställ" : "Markera som utgått")
+                </button>
+            </div>
+        }
+    </div>
 }
 
 @code {
-    private List<Product> products;
+    private string searchTerm = "";
+    private List<Product> products = new List<Product>();
+    private List<Product> filteredProducts = new List<Product>();
 
     protected override async Task OnInitializedAsync()
     {
-        // Hämta lista med produkter från API:et
-        products = await Http.GetFromJsonAsync<List<Product>>("api/product");
+        try
+        {
+            // Hämta produkter från API
+            products = await Http.GetFromJsonAsync<List<Product>>("api/products");
+            filteredProducts = products;
+
+            // Debug output till webbläsarens konsol
+            Console.WriteLine($"Antal produkter hämtade: {products.Count}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching products: {ex.Message}");
+        }
+    }
+
+    private void SearchProducts()
+    {
+        if (string.IsNullOrEmpty(searchTerm))
+        {
+            filteredProducts = products;
+        }
+        else
+        {
+            filteredProducts = products.Where(p => p.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                                                    p.ProductNumber.Contains(searchTerm)).ToList();
+        }
+    }
+
+    private async Task EditProduct(int productId)
+    {
+        // Logik för att uppdatera en produkt, t.ex. visa modal
+    }
+
+    private async Task DeleteProduct(int productId)
+    {
+        // Skicka borttagningsbegäran till API och uppdatera listan
+        await Http.DeleteAsync($"api/products/{productId}");
+        products = await Http.GetFromJsonAsync<List<Product>>("api/products");
+        filteredProducts = products;
+    }
+
+    private async Task ToggleDiscontinuedStatus(int productId)
+    {
+        // Uppdatera status för produkt
+        var product = products.FirstOrDefault(p => p.Id == productId);
+        if (product != null)
+        {
+            product.IsDiscontinued = !product.IsDiscontinued;
+            await Http.PutAsJsonAsync($"api/products/{productId}", product);
+            products = await Http.GetFromJsonAsync<List<Product>>("api/products");
+            filteredProducts = products;
+        }
+    }
+
+    private void ShowAddProductModal()
+    {
+        // Visa en modal för att lägga till produkt
     }
 }

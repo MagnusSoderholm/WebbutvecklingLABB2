@@ -2,7 +2,11 @@
 @using WebbutvecklingLABB2.Shared.Models
 @inject HttpClient Http
 
-<h3>Customer List</h3>
+<h3>Kundlista</h3>
+
+<div class="mb-3">
+    <input type="text" class="form-control" @bind="searchTerm" placeholder="Sök kund..." @oninput="SearchCustomers" />
+</div>
 
 @if (customers == null)
 {
@@ -10,23 +14,37 @@
 }
 else
 {
-    @foreach (var customer in customers)
+    @foreach (var customer in filteredCustomers)
     {
-        <div>
+        <div class="customer-card">
             <h4>@customer.FirstName @customer.LastName</h4>
             <p>Email: @customer.Email</p>
-            <p>Phone: @customer.PhoneNumber</p>
-            <p>Address: @customer.Address</p>
+            <p>Telefon: @customer.PhoneNumber</p>
+            <p>Adress: @customer.Address</p>
         </div>
     }
 }
 
 @code {
-    private List<Customer> customers;
+    private string searchTerm = "";
+    private List<Customer> customers = new List<Customer>();
+    private List<Customer> filteredCustomers = new List<Customer>();
 
     protected override async Task OnInitializedAsync()
     {
-        // Hämta lista med kunder från API:et
-        customers = await Http.GetFromJsonAsync<List<Customer>>("api/customer");
+        customers = await Http.GetFromJsonAsync<List<Customer>>("api/customers");
+        filteredCustomers = customers;
+    }
+
+    private void SearchCustomers()
+    {
+        if (string.IsNullOrEmpty(searchTerm))
+        {
+            filteredCustomers = customers;
+        }
+        else
+        {
+            filteredCustomers = customers.Where(c => c.Email.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)).ToList();
+        }
     }
 }

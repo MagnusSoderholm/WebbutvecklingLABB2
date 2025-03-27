@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using WebbutvecklingLABB2.Shared.Models;
 
-namespace WebbutvecklingLABB2.Shared
+namespace WebbutvecklingLABB2.Shared.Models
 {
     public class Order
     {

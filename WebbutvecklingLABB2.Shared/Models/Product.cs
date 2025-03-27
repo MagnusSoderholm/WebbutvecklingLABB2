@@ -14,5 +14,8 @@ namespace WebbutvecklingLABB2.Shared.Models
         public decimal Price { get; set; }
         public string Category { get; set; }
         public bool IsDiscontinued { get; set; }
+
+
+        public string ProductNumber { get; set; }
     }
 }

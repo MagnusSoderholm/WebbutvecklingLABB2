@@ -1,8 +1,9 @@
 ﻿@page "/orders"
-@using WebbutvecklingLABB2.Models
+@using WebbutvecklingLABB2.Shared.Models
+
 @inject HttpClient Http
 
-<h3>Order List</h3>
+<h3>Beställningar</h3>
 
 @if (orders == null)
 {
@@ -12,17 +13,17 @@ else
 {
     @foreach (var order in orders)
     {
-        <div>
+        <div class="order-card">
             <h4>Order ID: @order.Id</h4>
-            <p>Customer: @order.Customer.FirstName @order.Customer.LastName</p>
-            <p>Order Date: @order.OrderDate.ToString("yyyy-MM-dd HH:mm:ss")</p>
+            <p>Kund: @order.Customer.FirstName @order.Customer.LastName</p>
+            <p>Beställningsdatum: @order.OrderDate.ToString("yyyy-MM-dd HH:mm:ss")</p>
 
-            <h5>Order Items:</h5>
+            <h5>Beställningsvaror:</h5>
             <ul>
                 @foreach (var orderItem in order.OrderItems)
                 {
                     <li>
-                        @orderItem.Product.Name - Quantity: @orderItem.Quantity
+                        @orderItem.Product.Name - Antal: @orderItem.Quantity
                     </li>
                 }
             </ul>
@@ -35,7 +36,6 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        // Hämta lista med orders från API:et
         orders = await Http.GetFromJsonAsync<List<Order>>("api/orders");
     }
 }
