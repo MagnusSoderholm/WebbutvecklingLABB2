@@ -1,14 +1,6 @@
-﻿@using Microsoft.AspNetCore.Components.WebAssembly.Hosting
-@using WebbutvecklingLABB2.Client
-@using WebbutvecklingLABB2.Shared.Models
-@using WebbutvecklingLABB2.Client.Components
+﻿@page "/routes"
+@using WebbutvecklingLABB2.Client.Components.Pages
 
-<Router AppAssembly="typeof(Program).Assembly">
-    <Found Context="routeData">
-        <RouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)" />
-        <FocusOnNavigate RouteData="routeData" Selector="h1" />
-    </Found>
-    <NotFound>
-        <p>Sorry, the page could not be found!</p>
-    </NotFound>
-</Router>
+<NavLink href="/products">Produkter</NavLink>
+<NavLink href="/customers">Kunder</NavLink>
+<NavLink href="/orders">Beställningar</NavLink>

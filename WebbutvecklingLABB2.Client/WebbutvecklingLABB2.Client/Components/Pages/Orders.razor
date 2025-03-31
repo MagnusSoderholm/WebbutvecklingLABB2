@@ -1,4 +1,4 @@
-﻿@page "/orders"
+﻿@* @page "/orders"
 @using WebbutvecklingLABB2.Shared.Models
 
 @inject HttpClient Http
@@ -37,5 +37,55 @@ else
     protected override async Task OnInitializedAsync()
     {
         orders = await Http.GetFromJsonAsync<List<Order>>("api/orders");
+    }
+}
+ *@
+
+
+            @page "/orders"
+@using WebbutvecklingLABB2.Shared.Models
+@inject HttpClient Http
+
+<h3>Beställningar</h3>
+
+@if (orders == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    @foreach (var order in orders)
+    {
+        <div class="order-card">
+            <h4>Order ID: @order.Id</h4>
+            <p>Kund: @order.Customer.FirstName @order.Customer.LastName</p>
+            <p>Beställningsdatum: @order.OrderDate.ToString("yyyy-MM-dd HH:mm:ss")</p>
+
+            <h5>Beställningsvaror:</h5>
+            <ul>
+                @foreach (var orderItem in order.OrderItems)
+                {
+                    <li>
+                        @orderItem.Product.Name - Antal: @orderItem.Quantity
+                    </li>
+                }
+            </ul>
+        </div>
+    }
+}
+
+@code {
+    private List<Order> orders;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            orders = await Http.GetFromJsonAsync<List<Order>>("api/orders");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching orders: {ex.Message}");
+        }
     }
 }

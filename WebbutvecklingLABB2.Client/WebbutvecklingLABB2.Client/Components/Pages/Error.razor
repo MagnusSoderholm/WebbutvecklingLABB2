@@ -1,5 +1,5 @@
 ﻿@page "/Error"
-@using System.Diagnostics
+@inject HttpClient Http
 
 <PageTitle>Error</PageTitle>
 
@@ -24,13 +24,20 @@
     and restarting the app.
 </p>
 
-@code{
-    [CascadingParameter]
-    private HttpContext? HttpContext { get; set; }
-
+@code {
     private string? RequestId { get; set; }
     private bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
 
-    protected override void OnInitialized() =>
-        RequestId = Activity.Current?.Id ?? HttpContext?.TraceIdentifier;
+   
+    protected override async Task OnInitializedAsync()
+    {
+      
+        var response = await Http.GetFromJsonAsync<RequestInfo>("api/error");
+        RequestId = response?.RequestId;
+    }
+
+    public class RequestInfo
+    {
+        public string? RequestId { get; set; }
+    }
 }

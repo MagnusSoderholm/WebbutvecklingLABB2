@@ -1,4 +1,57 @@
-﻿@page "/customers"
+﻿@* @page "/customers"
+@using WebbutvecklingLABB2.Shared.Models
+@inject HttpClient Http
+
+<h3>Kundlista</h3>
+
+<div class="mb-3">
+    <input type="text" class="form-control" @bind="searchTerm" placeholder="Sök kund..." />
+</div>
+
+@if (customers == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    @foreach (var customer in filteredCustomers)
+    {
+        <div class="customer-card">
+            <h4>@customer.FirstName @customer.LastName</h4>
+            <p>Email: @customer.Email</p>
+            <p>Telefon: @customer.PhoneNumber</p>
+            <p>Adress: @customer.Address</p>
+        </div>
+    }
+}
+
+@code {
+    private string searchTerm = "";
+    private List<Customer> customers = new List<Customer>();
+    private List<Customer> filteredCustomers = new List<Customer>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        customers = await Http.GetFromJsonAsync<List<Customer>>("api/customers");
+        filteredCustomers = customers;
+    }
+
+    private void SearchCustomers()
+    {
+        if (string.IsNullOrEmpty(searchTerm))
+        {
+            filteredCustomers = customers;
+        }
+        else
+        {
+            filteredCustomers = customers.Where(c => c.Email.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)).ToList();
+        }
+    }
+}
+ *@
+
+
+    @page "/customers"
 @using WebbutvecklingLABB2.Shared.Models
 @inject HttpClient Http
 
@@ -32,8 +85,15 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        customers = await Http.GetFromJsonAsync<List<Customer>>("api/customers");
-        filteredCustomers = customers;
+        try
+        {
+            customers = await Http.GetFromJsonAsync<List<Customer>>("api/customers");
+            filteredCustomers = customers;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching customers: {ex.Message}");
+        }
     }
 
     private void SearchCustomers()
