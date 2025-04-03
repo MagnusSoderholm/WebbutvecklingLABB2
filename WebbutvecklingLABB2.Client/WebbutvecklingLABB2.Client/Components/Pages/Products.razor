@@ -1,4 +1,4 @@
-﻿@* @page "/products"
+﻿@page "/api/products"
 @using WebbutvecklingLABB2.Shared.Models
 @inject HttpClient Http
 
@@ -11,11 +11,19 @@
 
 @if (products == null)
 {
-    <p>Loading...</p>
+    <p>Laddar...</p>
 }
 else if (!filteredProducts.Any())
 {
+
     <p>Inga produkter hittades.</p>
+   <p>@Code</p>
+    <p>@products.Count</p>
+    <p>@filteredProducts.Count</p>
+    <p>@Product.ToString()</p>
+    <p>@Product.Id.Equals(2)</p>
+    <li>@Product.Name</li>
+     
 }
 else
 {
@@ -44,22 +52,52 @@ else
     private List<Product> products = new List<Product>();
     private List<Product> filteredProducts = new List<Product>();
 
+    private Product Product = new Product();
+    private string Code = "Code";
+
+
+
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            // Hämta produkter från API
-            products = await Http.GetFromJsonAsync<List<Product>>("api/products");
-            filteredProducts = products;
+            // Hämta alla produkter från API:et
+            var response = await Http.GetAsync("https://localhost:7179/api/products");
+            Code = response.StatusCode.ToString();
 
-            // Debug output till webbläsarens konsol
-            Console.WriteLine($"Antal produkter hämtade: {products.Count}");
+            // Kontrollera om API-anropet är framgångsrikt
+            if (response.IsSuccessStatusCode)
+            {
+                // Läs innehållet som en lista av produkter
+                var productsFromApi = await response.Content.ReadFromJsonAsync<List<Product>>();
+
+                // Skriv ut svarsinnehållet (JSON) för att se om produkter finns
+                Console.WriteLine("API-svar: " + await response.Content.ReadAsStringAsync());
+
+                // Kontrollera om vi har några produkter
+                if (productsFromApi != null && productsFromApi.Any())
+                {
+                    products = productsFromApi;
+                    filteredProducts = products;
+                }
+                else
+                {
+                    Console.WriteLine("API-svaret var tomt eller null.");
+                }
+            }
+            else
+            {
+                Console.WriteLine($"Fel: API-anropet misslyckades med statuskod: {response.StatusCode}");
+            }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error fetching products: {ex.Message}");
+            Console.WriteLine($"Fel vid API-anrop: {ex.Message}");
         }
     }
+
+
+
 
     private void SearchProducts()
     {
@@ -105,8 +143,50 @@ else
         // Visa en modal för att lägga till produkt
     }
 }
+
+
+
+
+
+
+@* //    protected override async Task OnInitializedAsync()
+// {
+//     try
+//     {
+//         // Hämta alla produkter från API:et
+//         var response = await Http.GetAsync("https://localhost:7179/api/products");
+//         Code = response.StatusCode.ToString();
+
+//         // Kontrollera om API-anropet är framgångsrikt
+//         if (response.IsSuccessStatusCode)
+//         {
+//             // Om API-svaret är framgångsrikt, hämta listan med produkter
+//             var productsFromApi = await response.Content.ReadFromJsonAsync<List<Product>>();
+//             if (productsFromApi != null && productsFromApi.Any())
+//             {
+//                 products = productsFromApi;
+//                 filteredProducts = products;
+//             }
+//             else
+//             {
+//                 Console.WriteLine("API-svaret var tomt eller null.");
+//             }
+//         }
+//         else
+//         {
+//             Console.WriteLine($"Fel: API-anropet misslyckades med statuskod: {response.StatusCode}");
+//         }
+//     }
+//     catch (Exception ex)
+//     {
+//         Console.WriteLine($"Fel vid API-anrop: {ex.Message}");
+//     }
+// }
  *@
 
+
+
+@* 
 @page "/products"
 @using WebbutvecklingLABB2.Shared.Models
 @using WebbutvecklingLABB2.Client.Services
@@ -147,4 +227,4 @@ else
             Console.WriteLine($"Error fetching products: {ex.Message}");
         }
     }
-}
+} *@

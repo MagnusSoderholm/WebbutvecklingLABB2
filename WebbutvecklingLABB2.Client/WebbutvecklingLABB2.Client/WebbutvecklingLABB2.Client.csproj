@@ -1,4 +1,4 @@
-ï»¿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -14,6 +14,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\WebbutvecklingLABB2.Shared\WebbutvecklingLABB2.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- StaticWebAsset referens borttagen här -->
   </ItemGroup>
 
 </Project>

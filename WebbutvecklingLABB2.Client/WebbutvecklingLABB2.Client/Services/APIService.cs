@@ -44,7 +44,18 @@ namespace WebbutvecklingLABB2.Client.Services
 
         public async Task<List<Customer>> GetCustomersAsync()
         {
-            return await _httpClient.GetFromJsonAsync<List<Customer>>("api/customers");
+            try
+            {
+                var response = await _httpClient.GetAsync("api/customers");
+                var content = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"API Response: {content}");
+                return await response.Content.ReadFromJsonAsync<List<Customer>>();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching customers: {ex.Message}");
+                return null;
+            }
         }
     }
 }

@@ -29,9 +29,10 @@
 
 //app.UseHttpsRedirection();
 
-//app.MapControllers();
-
-//app.Run();
+using Microsoft.EntityFrameworkCore;
+using WebbutvecklingLABB2.Data;
+using WebbutvecklingLABB2.Repositories;
+using WebbutvecklingLABB2.Models;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -40,7 +41,6 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Lägg till CORS om det behövs
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll",
@@ -49,16 +49,18 @@ builder.Services.AddCors(options =>
                         .AllowAnyHeader());
 });
 
+builder.Services.AddScoped<IRepository<Product>, ProductRepository>();
+builder.Services.AddScoped<IRepository<Customer>, CustomerRepository>();
+builder.Services.AddScoped<IRepository<Order>, OrderRepository>();
+
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 var app = builder.Build();
 
 app.UseHttpsRedirection();
-
-// Lägg till CORS
 app.UseCors("AllowAll");
-
 app.UseAuthorization();
-
-// Viktigt! Gör så att API-kontrollers fungerar
 app.MapControllers();
 
 if (app.Environment.IsDevelopment())
@@ -68,5 +70,4 @@ if (app.Environment.IsDevelopment())
 }
 
 app.Run();
-
 

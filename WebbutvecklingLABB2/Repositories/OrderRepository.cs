@@ -1,6 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using WebbutvecklingLABB2.Models;
 using WebbutvecklingLABB2.Data;
-using WebbutvecklingLABB2.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace WebbutvecklingLABB2.Repositories
 {
@@ -13,25 +13,19 @@ namespace WebbutvecklingLABB2.Repositories
             _context = context;
         }
 
-        public async Task<IEnumerable<Order>> GetAllAsync()
-        {
-            return await _context.Orders.Include(o => o.Customer).Include(o => o.OrderItems).ThenInclude(oi => oi.Product).ToListAsync();
-        }
+        public async Task<IEnumerable<Order>> GetAllAsync() => await _context.Orders.ToListAsync();
 
-        public async Task<Order?> GetByIdAsync(int id)
-        {
-            return await _context.Orders.Include(o => o.Customer).Include(o => o.OrderItems).ThenInclude(oi => oi.Product).FirstOrDefaultAsync(o => o.Id == id);
-        }
+        public async Task<Order?> GetByIdAsync(int id) => await _context.Orders.FindAsync(id);
 
-        public async Task AddAsync(Order entity)
+        public async Task AddAsync(Order order)
         {
-            _context.Orders.Add(entity);
+            _context.Orders.Add(order);
             await _context.SaveChangesAsync();
         }
 
-        public async Task UpdateAsync(Order entity)
+        public async Task UpdateAsync(Order order)
         {
-            _context.Orders.Update(entity);
+            _context.Orders.Update(order);
             await _context.SaveChangesAsync();
         }
 

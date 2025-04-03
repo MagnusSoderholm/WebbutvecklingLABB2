@@ -22,11 +22,10 @@ public class OrderController : ControllerBase
         _customerRepository = customerRepository;
     }
 
-    // Skapa order med endast productId och customerId
     [HttpPost]
     public async Task<ActionResult<Order>> CreateOrder(OrderRequest orderRequest)
     {
-        // Hämta produkt och kund från databasen baserat på de skickade ID:n
+  
         var product = await _productRepository.GetByIdAsync(orderRequest.ProductId);
         var customer = await _customerRepository.GetByIdAsync(orderRequest.CustomerId);
 
@@ -40,7 +39,6 @@ public class OrderController : ControllerBase
             return NotFound($"Customer with ID {orderRequest.CustomerId} not found.");
         }
 
-        // Skapa ordern med den hämtade informationen
         var order = new Order
         {
             CustomerId = customer.Id,
@@ -52,18 +50,18 @@ public class OrderController : ControllerBase
                 {
                     ProductId = product.Id,
                     Product = product,
-                    Quantity = orderRequest.Quantity // Quantity kan också vara en parameter i OrderRequest
+                    Quantity = orderRequest.Quantity
                 }
             }
         };
 
-        // Lägg till ordern i databasen
+     
         await _orderRepository.AddAsync(order);
 
         return CreatedAtAction(nameof(GetOrder), new { id = order.Id }, order);
     }
 
-    // Get order (detta är en exempelfunktion för att hämta order med ID)
+ 
     [HttpGet("{id}")]
     public async Task<ActionResult<Order>> GetOrder(int id)
     {
@@ -72,10 +70,9 @@ public class OrderController : ControllerBase
     }
 }
 
-// En förenklad modell för orderinmatning (endast de ID:n vi behöver)
 public class OrderRequest
 {
     public int ProductId { get; set; }
     public int CustomerId { get; set; }
-    public int Quantity { get; set; } // Du kan lägga till mer information som Quantity om det behövs
+    public int Quantity { get; set; }
 }
