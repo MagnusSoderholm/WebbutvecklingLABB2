@@ -1,4 +1,4 @@
-﻿@page "/api/products"
+﻿@page "/products"
 @using WebbutvecklingLABB2.Shared.Models
 @inject HttpClient Http
 
@@ -21,8 +21,9 @@ else if (!filteredProducts.Any())
     <p>@products.Count</p>
     <p>@filteredProducts.Count</p>
     <p>@Product.ToString()</p>
-    <p>@Product.Id.Equals(2)</p>
+    <p>@Product.Id.Equals(3)</p>
     <li>@Product.Name</li>
+    <p>@products.ToString()</p>
      
 }
 else
@@ -61,9 +62,17 @@ else
     {
         try
         {
-            // Hämta alla produkter från API:et
-            var response = await Http.GetAsync("https://localhost:7179/api/products");
-            Code = response.StatusCode.ToString();
+            // Skapa en HttpRequestMessage
+            var request = new HttpRequestMessage(HttpMethod.Get, "https://localhost:7179/api/products")
+                {
+                    Headers =
+            {
+                Accept = { new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json") }
+            }
+                };
+
+            // Skicka begäran med HttpClient
+            var response = await Http.SendAsync(request);
 
             // Kontrollera om API-anropet är framgångsrikt
             if (response.IsSuccessStatusCode)
@@ -71,23 +80,12 @@ else
                 // Läs innehållet som en lista av produkter
                 var productsFromApi = await response.Content.ReadFromJsonAsync<List<Product>>();
 
-                // Skriv ut svarsinnehållet (JSON) för att se om produkter finns
-                Console.WriteLine("API-svar: " + await response.Content.ReadAsStringAsync());
-
                 // Kontrollera om vi har några produkter
                 if (productsFromApi != null && productsFromApi.Any())
                 {
                     products = productsFromApi;
                     filteredProducts = products;
                 }
-                else
-                {
-                    Console.WriteLine("API-svaret var tomt eller null.");
-                }
-            }
-            else
-            {
-                Console.WriteLine($"Fel: API-anropet misslyckades med statuskod: {response.StatusCode}");
             }
         }
         catch (Exception ex)
@@ -95,6 +93,8 @@ else
             Console.WriteLine($"Fel vid API-anrop: {ex.Message}");
         }
     }
+
+
 
 
 

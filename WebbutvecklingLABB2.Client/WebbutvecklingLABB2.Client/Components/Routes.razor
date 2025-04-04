@@ -1,6 +1,6 @@
-﻿@page "/routes"
-@using WebbutvecklingLABB2.Client.Components.Pages
-
-<NavLink href="/products">Produkter</NavLink>
-<NavLink href="/customers">Kunder</NavLink>
-<NavLink href="/orders">Beställningar</NavLink>
+﻿<Router AppAssembly="typeof(Program).Assembly" AdditionalAssemblies="new[] { typeof(_Imports).Assembly }">
+    <Found Context="routeData">
+        <RouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)" />
+        <FocusOnNavigate RouteData="routeData" Selector="h1" />
+    </Found>
+</Router>
