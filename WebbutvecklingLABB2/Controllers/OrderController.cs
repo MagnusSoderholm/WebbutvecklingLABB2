@@ -68,6 +68,14 @@ public class OrderController : ControllerBase
         var order = await _orderRepository.GetByIdAsync(id);
         return order == null ? NotFound() : Ok(order);
     }
+
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<Order>>> GetOrders()
+    {
+        var orders = await _orderRepository.GetAllAsync();
+        return Ok(orders);
+    }
+
 }
 
 public class OrderRequest
