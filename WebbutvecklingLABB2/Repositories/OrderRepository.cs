@@ -13,7 +13,12 @@ namespace WebbutvecklingLABB2.Repositories
             _context = context;
         }
 
-        public async Task<IEnumerable<Order>> GetAllAsync() => await _context.Orders.ToListAsync();
+        public async Task<IEnumerable<Order>> GetAllAsync() =>
+      await _context.Orders
+          .Include(o => o.Customer)
+          .Include(o => o.OrderItems)
+              .ThenInclude(oi => oi.Product)
+          .ToListAsync();
 
         public async Task<Order?> GetByIdAsync(int id) => await _context.Orders.FindAsync(id);
 
