@@ -1,230 +1,144 @@
 ﻿@page "/products"
 @using WebbutvecklingLABB2.Shared.Models
-@inject HttpClient Http
-
-<h3>Produktlista</h3>
-
-<div class="mb-3">
-    <button class="btn btn-primary" @onclick="ShowAddProductModal">Lägg till Produkt</button>
-    <input type="text" class="form-control mt-3" @bind="searchTerm" placeholder="Sök produkt..."/>
-</div>
-
-@if (products == null)
-{
-    <p>Laddar...</p>
-}
-else if (!filteredProducts.Any())
-{
-
-    <p>Inga produkter hittades.</p>
-   <p>@Code</p>
-    <p>@products.Count</p>
-    <p>@filteredProducts.Count</p>
-    <p>@Product.ToString()</p>
-    <p>@Product.Id.Equals(3)</p>
-    <li>@Product.Name</li>
-    <p>@products.ToString()</p>
-     
-}
-else
-{
-    <div class="product-list">
-        @foreach (var product in filteredProducts)
-        {
-            <div class="product-card">
-                <h4>@product.Name</h4>
-                <p>@product.Description</p>
-                <p><strong>Pris:</strong> @product.Price SEK</p>
-                <p><strong>Kategori:</strong> @product.Category</p>
-                <p><strong>Status:</strong> @(product.IsDiscontinued ? "Utgått" : "Tillgänglig")</p>
-
-                <button class="btn btn-warning" @onclick="() => EditProduct(product.Id)">Ändra</button>
-                <button class="btn btn-danger" @onclick="() => DeleteProduct(product.Id)">Ta bort</button>
-                <button class="btn btn-secondary" @onclick="() => ToggleDiscontinuedStatus(product.Id)">
-                    @(product.IsDiscontinued ? "Återställ" : "Markera som utgått")
-                </button>
-            </div>
-        }
-    </div>
-}
-
-@code {
-    private string searchTerm = "";
-    private List<Product> products = new List<Product>();
-    private List<Product> filteredProducts = new List<Product>();
-
-    private Product Product = new Product();
-    private string Code = "Code";
-
-
-
-    protected override async Task OnInitializedAsync()
-    {
-        try
-        {
-            // Skapa en HttpRequestMessage
-            var request = new HttpRequestMessage(HttpMethod.Get, "https://localhost:7179/api/products")
-                {
-                    Headers =
-            {
-                Accept = { new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json") }
-            }
-                };
-
-            // Skicka begäran med HttpClient
-            var response = await Http.SendAsync(request);
-
-            // Kontrollera om API-anropet är framgångsrikt
-            if (response.IsSuccessStatusCode)
-            {
-                // Läs innehållet som en lista av produkter
-                var productsFromApi = await response.Content.ReadFromJsonAsync<List<Product>>();
-
-                // Kontrollera om vi har några produkter
-                if (productsFromApi != null && productsFromApi.Any())
-                {
-                    products = productsFromApi;
-                    filteredProducts = products;
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Fel vid API-anrop: {ex.Message}");
-        }
-    }
-
-
-
-
-
-
-    private void SearchProducts()
-    {
-        if (string.IsNullOrEmpty(searchTerm))
-        {
-            filteredProducts = products;
-        }
-        else
-        {
-            filteredProducts = products.Where(p => p.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
-                                                    p.ProductNumber.Contains(searchTerm)).ToList();
-        }
-    }
-
-    private async Task EditProduct(int productId)
-    {
-        // Logik för att uppdatera en produkt, t.ex. visa modal
-    }
-
-    private async Task DeleteProduct(int productId)
-    {
-        // Skicka borttagningsbegäran till API och uppdatera listan
-        await Http.DeleteAsync($"api/products/{productId}");
-        products = await Http.GetFromJsonAsync<List<Product>>("api/products");
-        filteredProducts = products;
-    }
-
-    private async Task ToggleDiscontinuedStatus(int productId)
-    {
-        // Uppdatera status för produkt
-        var product = products.FirstOrDefault(p => p.Id == productId);
-        if (product != null)
-        {
-            product.IsDiscontinued = !product.IsDiscontinued;
-            await Http.PutAsJsonAsync($"api/products/{productId}", product);
-            products = await Http.GetFromJsonAsync<List<Product>>("api/products");
-            filteredProducts = products;
-        }
-    }
-
-    private void ShowAddProductModal()
-    {
-        // Visa en modal för att lägga till produkt
-    }
-}
-
-
-
-
-
-
-@* //    protected override async Task OnInitializedAsync()
-// {
-//     try
-//     {
-//         // Hämta alla produkter från API:et
-//         var response = await Http.GetAsync("https://localhost:7179/api/products");
-//         Code = response.StatusCode.ToString();
-
-//         // Kontrollera om API-anropet är framgångsrikt
-//         if (response.IsSuccessStatusCode)
-//         {
-//             // Om API-svaret är framgångsrikt, hämta listan med produkter
-//             var productsFromApi = await response.Content.ReadFromJsonAsync<List<Product>>();
-//             if (productsFromApi != null && productsFromApi.Any())
-//             {
-//                 products = productsFromApi;
-//                 filteredProducts = products;
-//             }
-//             else
-//             {
-//                 Console.WriteLine("API-svaret var tomt eller null.");
-//             }
-//         }
-//         else
-//         {
-//             Console.WriteLine($"Fel: API-anropet misslyckades med statuskod: {response.StatusCode}");
-//         }
-//     }
-//     catch (Exception ex)
-//     {
-//         Console.WriteLine($"Fel vid API-anrop: {ex.Message}");
-//     }
-// }
- *@
-
-
-
-@* 
-@page "/products"
-@using WebbutvecklingLABB2.Shared.Models
 @using WebbutvecklingLABB2.Client.Services
 @inject ApiService ApiService
 
 <h3>Produktlista</h3>
 
-@if (products == null)
+<div>
+    <input type="text" @bind="searchTerm" placeholder="Sök produkt..." />
+    <button @onclick="SearchProducts">Sök</button>
+</div>
+<div>   
+    <button @onclick="ShowAddProductModal">Lägg till produkt</button>
+    </div>
+
+@if (isAddModalVisible)
+{
+    <div class="modal-background">
+        <div class="modal">
+            <h3>@(editProduct.Id == 0 ? "Ny Produkt" : "Redigera Produkt")</h3>
+            <input @bind="editProduct.Name" placeholder="Namn" />
+            <input @bind="editProduct.ProductNumber" placeholder="Artikelnummer" />
+            <input @bind="editProduct.Description" placeholder="Beskrivning" />
+            <input type="number" @bind="editProduct.Price" placeholder="Pris" />
+            <input @bind="editProduct.Category" placeholder="Kategori" />
+            <label>
+                <input type="checkbox" @bind="editProduct.IsDiscontinued" />
+                Utgått
+            </label>
+            <button @onclick="SaveProduct">Spara</button>
+            <button @onclick="CancelEdit">Avbryt</button>
+        </div>
+    </div>
+}
+
+@if (filteredProducts == null)
 {
     <p>Laddar...</p>
 }
+else if (!filteredProducts.Any())
+{
+    <p>Inga produkter hittades.</p>
+}
 else
 {
-    @foreach (var product in products)
+    @foreach (var product in filteredProducts)
     {
-        <div class="product-card">
-            <h4>@product.Name</h4>
-            <p>@product.Description</p>
-            <p><strong>Pris:</strong> @product.Price SEK</p>
-            <p><strong>Kategori:</strong> @product.Category</p>
-            <p><strong>Status:</strong> @(product.IsDiscontinued ? "Utgått" : "Tillgänglig")</p>
-        </div>
+        <ProductCard Product="product" OnEdit="EditProduct" OnDelete="DeleteProduct" OnToggleStatus="ToggleDiscontinuedStatus" />
     }
 }
 
 @code {
-    private List<Product> products;
+    private string searchTerm = "";
+    private List<Product> products = new();
+    private List<Product> filteredProducts = new();
+    private bool isAddModalVisible = false;
+    private Product editProduct = new();
 
-    // När komponenten initialiseras, hämta produkter via ApiService
     protected override async Task OnInitializedAsync()
     {
-        try
+        products = await ApiService.GetProductsAsync();
+        filteredProducts = products;
+    }
+
+    private void SearchProducts()
+    {
+        if (string.IsNullOrWhiteSpace(searchTerm))
         {
-            products = await ApiService.GetProductsAsync();
+            filteredProducts = products;
         }
-        catch (Exception ex)
+        else
         {
-            Console.WriteLine($"Error fetching products: {ex.Message}");
+            filteredProducts = products.Where(p =>
+                (p.Name?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (p.ProductNumber?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false)
+            ).ToList();
+        }
+        StateHasChanged();
+    }
+
+    private void ShowAddProductModal()
+    {
+        editProduct = new Product();
+        isAddModalVisible = true;
+    }
+
+    private void EditProduct(Product product)
+    {
+        editProduct = new Product
+            {
+                Id = product.Id,
+                Name = product.Name,
+                ProductNumber = product.ProductNumber,
+                Description = product.Description,
+                Price = product.Price,
+                Category = product.Category,
+                IsDiscontinued = product.IsDiscontinued
+            };
+        isAddModalVisible = true;
+    }
+
+    private async Task SaveProduct()
+    {
+        if (editProduct.Id == 0)
+        {
+            await ApiService.AddProductAsync(editProduct);
+        }
+        else
+        {
+            await ApiService.UpdateProductAsync(editProduct);
+        }
+
+        products = await ApiService.GetProductsAsync();
+        SearchProducts();
+        isAddModalVisible = false;
+    }
+
+    private void CancelEdit()
+    {
+        isAddModalVisible = false;
+    }
+
+    private async Task DeleteProduct(Product product)
+    {
+        if (await ApiService.DeleteProductAsync(product.Id))
+        {
+            products.Remove(product);
+            SearchProducts();
         }
     }
-} *@
+
+    private async Task ToggleDiscontinuedStatus(Product product)
+    {
+        product.IsDiscontinued = !product.IsDiscontinued;
+        await ApiService.UpdateProductAsync(product);
+        SearchProducts();
+    }
+
+    private void OnSearchTermChanged(ChangeEventArgs e)
+    {
+        searchTerm = e.Value?.ToString() ?? "";
+        SearchProducts();
+    }
+}

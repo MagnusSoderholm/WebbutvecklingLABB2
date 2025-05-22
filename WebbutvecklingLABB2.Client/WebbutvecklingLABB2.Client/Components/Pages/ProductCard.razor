@@ -1,0 +1,29 @@
+﻿@using WebbutvecklingLABB2.Shared.Models
+
+<div class="product-card">
+    <h4>@Product.Name</h4>
+    <p>@Product.Description</p>
+    <p><strong>Pris:</strong> @Product.Price SEK</p>
+    <p><strong>Kategori:</strong> @Product.Category</p>
+    <p><strong>Status:</strong> @(Product.IsDiscontinued ? "Utgått" : "Tillgänglig")</p>
+
+    <button class="btn btn-warning" @onclick="() => OnEdit.InvokeAsync(Product)">Ändra</button>
+    <button class="btn btn-danger" @onclick="() => OnDelete.InvokeAsync(Product)">Ta bort</button>
+    <button class="btn btn-secondary" @onclick="() => OnToggleStatus.InvokeAsync(Product)">
+        @(Product.IsDiscontinued ? "Återställ" : "Markera som utgått")
+    </button>
+</div>
+
+@code {
+    [Parameter]
+    public Product Product { get; set; }
+
+    [Parameter]
+    public EventCallback<Product> OnEdit { get; set; }
+
+    [Parameter]
+    public EventCallback<Product> OnDelete { get; set; }
+
+    [Parameter]
+    public EventCallback<Product> OnToggleStatus { get; set; }
+}
