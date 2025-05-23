@@ -1,0 +1,51 @@
+﻿@page "/register-customer"
+@using WebbutvecklingLABB2.Client.Services
+@using WebbutvecklingLABB2.Shared.Models
+@inject ApiService ApiService
+@inject NavigationManager NavigationManager
+
+<h3>Registrera ny kund</h3>
+
+<div class="mb-3">
+    <label>Förnamn</label>
+    <input class="form-control" @bind="customer.FirstName" />
+</div>
+
+<div class="mb-3">
+    <label>Efternamn</label>
+    <input class="form-control" @bind="customer.LastName" />
+</div>
+
+<div class="mb-3">
+    <label>E-post</label>
+    <input type="email" class="form-control" @bind="customer.Email" />
+</div>
+
+<div class="mb-3">
+    <label>Telefonnummer</label>
+    <input class="form-control" @bind="customer.PhoneNumber" />
+</div>
+
+<div class="mb-3">
+    <label>Adress</label>
+    <input class="form-control" @bind="customer.Address" />
+</div>
+
+<button class="btn btn-primary" @onclick="RegisterNewCustomer">Registrera</button>
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="alert alert-success mt-3">@message</div>
+}
+
+
+@code {
+    private Customer customer = new Customer();
+    private string message;
+
+    private async Task RegisterNewCustomer()
+    {
+        await ApiService.AddCustomerAsync(customer);
+        message = "Registrering lyckades!";
+    }
+}

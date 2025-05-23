@@ -32,6 +32,17 @@ namespace WebbutvecklingLABB2.Client.Services
             response.EnsureSuccessStatusCode();
         }
 
+        public async Task AddCustomerAsync(Customer customer)
+        {
+            var response = await _httpClient.PostAsJsonAsync("api/customers", customer);
+            response.EnsureSuccessStatusCode();
+        }
+        public async Task<bool> DeleteCustomerAsync(int customerId)
+        {
+            var response = await _httpClient.DeleteAsync($"api/customers/{customerId}");
+            return response.IsSuccessStatusCode;
+        }
+
         public async Task<bool> DeleteProductAsync(int productId)
         {
             var response = await _httpClient.DeleteAsync($"api/products/{productId}");
