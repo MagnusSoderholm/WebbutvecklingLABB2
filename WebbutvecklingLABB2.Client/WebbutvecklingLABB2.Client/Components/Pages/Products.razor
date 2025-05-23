@@ -12,22 +12,34 @@
 <div>   
     <button @onclick="ShowAddProductModal">Lägg till produkt</button>
     </div>
-
+     
 @if (isAddModalVisible)
 {
-    <div class="modal-background">
-        <div class="modal">
+    <div style="position:fixed; top:0; left:0; width:100vw; height:100vh; background-color:rgba(0,0,0,0.5); display:flex; justify-content:center; align-items:center; z-index:9999;">
+        <div style="background:white; padding:2rem; border-radius:10px; width:320px; box-shadow:0 0 10px black;">
             <h3>@(editProduct.Id == 0 ? "Ny Produkt" : "Redigera Produkt")</h3>
-            <input @bind="editProduct.Name" placeholder="Namn" />
-            <input @bind="editProduct.ProductNumber" placeholder="Artikelnummer" />
-            <input @bind="editProduct.Description" placeholder="Beskrivning" />
-            <input type="number" @bind="editProduct.Price" placeholder="Pris" />
-            <input @bind="editProduct.Category" placeholder="Kategori" />
-            <label>
-                <input type="checkbox" @bind="editProduct.IsDiscontinued" />
+
+            <label for="nameInput">Namn:</label><br />
+            <input id="nameInput" @bind="editProduct.Name" placeholder="Namn" style="width:100%; margin-bottom:10px;" />
+
+            <label for="productNumberInput">Artikelnummer:</label><br />
+            <input id="productNumberInput" @bind="editProduct.ProductNumber" placeholder="Artikelnummer" style="width:100%; margin-bottom:10px;" />
+
+            <label for="descriptionInput">Beskrivning:</label><br />
+            <input id="descriptionInput" @bind="editProduct.Description" placeholder="Beskrivning" style="width:100%; margin-bottom:10px;" />
+
+            <label for="priceInput">Pris:</label><br />
+            <input id="priceInput" type="number" @bind="editProduct.Price" placeholder="Pris" style="width:100%; margin-bottom:10px;" />
+
+            <label for="categoryInput">Kategori:</label><br />
+            <input id="categoryInput" @bind="editProduct.Category" placeholder="Kategori" style="width:100%; margin-bottom:10px;" />
+
+            <label style="display:flex; align-items:center; margin-bottom:10px;">
+                <input type="checkbox" @bind="editProduct.IsDiscontinued" style="margin-right:5px;" />
                 Utgått
             </label>
-            <button @onclick="SaveProduct">Spara</button>
+
+            <button @onclick="SaveProduct" style="margin-right:10px;">Spara</button>
             <button @onclick="CancelEdit">Avbryt</button>
         </div>
     </div>
@@ -86,6 +98,7 @@ else
 
     private void EditProduct(Product product)
     {
+        Console.WriteLine($"EditProduct körs: {product.Name}");
         editProduct = new Product
             {
                 Id = product.Id,
@@ -97,6 +110,7 @@ else
                 IsDiscontinued = product.IsDiscontinued
             };
         isAddModalVisible = true;
+        StateHasChanged();
     }
 
     private async Task SaveProduct()

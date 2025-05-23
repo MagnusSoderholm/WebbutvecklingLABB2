@@ -20,20 +20,10 @@ namespace WebbutvecklingLABB2.Client.Services
             return await _httpClient.GetFromJsonAsync<List<Product>>("api/products");
         }
 
-        public async Task<List<Customer>> GetCustomersAsync()
+        public async Task AddProductAsync(Product product)
         {
-            try
-            {
-                var response = await _httpClient.GetAsync("api/customers");
-                var content = await response.Content.ReadAsStringAsync();
-                Console.WriteLine($"API Response: {content}");
-                return await response.Content.ReadFromJsonAsync<List<Customer>>();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error fetching customers: {ex.Message}");
-                return null;
-            }
+            var response = await _httpClient.PostAsJsonAsync("api/products", product);
+            response.EnsureSuccessStatusCode();
         }
 
         public async Task UpdateProductAsync(Product product)
@@ -47,11 +37,20 @@ namespace WebbutvecklingLABB2.Client.Services
             var response = await _httpClient.DeleteAsync($"api/products/{productId}");
             return response.IsSuccessStatusCode;
         }
-
-        public async Task AddProductAsync(Product product)
-        {
-            var response = await _httpClient.PostAsJsonAsync("api/products", product);
-            response.EnsureSuccessStatusCode();
-        }
+        public async Task<List<Customer>> GetCustomersAsync()
+{
+    try
+    {
+        var response = await _httpClient.GetAsync("api/customers");
+        var content = await response.Content.ReadAsStringAsync();
+        Console.WriteLine($"API Response: {content}");
+        return await response.Content.ReadFromJsonAsync<List<Customer>>();
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Error fetching customers: {ex.Message}");
+        return null;
+    }
+}
     }
 }
