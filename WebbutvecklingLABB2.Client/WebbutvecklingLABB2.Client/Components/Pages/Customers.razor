@@ -2,6 +2,7 @@
 @using WebbutvecklingLABB2.Shared.Models
 @using WebbutvecklingLABB2.Client.Services
 @inject ApiService ApiService
+@inject NavigationManager NavigationManager
 
 <h3>Kundlista</h3>
 
@@ -15,11 +16,13 @@ else
 {
     @foreach (var customer in customers)
     {
-        <div class="customer-card">
+        <div class="customer-card mb-3 border p-3 rounded shadow-sm">
             <h4>@customer.FirstName @customer.LastName</h4>
-            <p>Email: @customer.Email</p>
-            <p>Telefon: @customer.PhoneNumber</p>
-            <p>Adress: @customer.Address</p>
+            <p><strong>Email:</strong> @customer.Email</p>
+            <p><strong>Telefon:</strong> @customer.PhoneNumber</p>
+            <p><strong>Adress:</strong> @customer.Address</p>
+
+            <button class="btn btn-sm btn-warning" @onclick="() => EditCustomer(customer.Id)">Redigera</button>
         </div>
     }
 }
@@ -39,13 +42,13 @@ else
         }
     }
 
-    @code {
-        [Inject]
-        private NavigationManager NavigationManager { get; set; }
+    private void NavigateToRegister()
+    {
+        NavigationManager.NavigateTo("/register-customer");
+    }
 
-        private void NavigateToRegister()
-        {
-            NavigationManager.NavigateTo("/register-customer");
-        }
+    private void EditCustomer(int id)
+    {
+        NavigationManager.NavigateTo($"/customers/edit/{id}");
     }
 }

@@ -1,0 +1,105 @@
+﻿@page "/customers/edit/{CustomerId:int}"
+@inject ApiService ApiService
+@inject NavigationManager NavigationManager
+@using WebbutvecklingLABB2.Client.Services
+
+<h3>Redigera kund</h3>
+
+<p>CustomerId är: @CustomerId</p>
+
+@if (isLoading)
+{
+    <p>Laddar kunddata...</p>
+}
+else if (loadError != null)
+{
+    <p class="text-danger">Fel vid inläsning: @loadError</p>
+}
+else if (customer == null)
+{
+    <p>Kund hittades inte.</p>
+}
+else
+{
+    <EditForm Model="customer" OnValidSubmit="UpdateCustomer">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="form-group">
+            <label>Förnamn:</label>
+            <InputText @bind-Value="customer.FirstName" class="form-control" />
+            <ValidationMessage For="@(() => customer.FirstName)" />
+        </div>
+
+        <div class="form-group">
+            <label>Efternamn:</label>
+            <InputText @bind-Value="customer.LastName" class="form-control" />
+            <ValidationMessage For="@(() => customer.LastName)" />
+        </div>
+
+        <div class="form-group">
+            <label>E-post:</label>
+            <InputText @bind-Value="customer.Email" class="form-control" />
+            <ValidationMessage For="@(() => customer.Email)" />
+        </div>
+
+        <div class="form-group">
+            <label>Telefonnummer:</label>
+            <InputText @bind-Value="customer.PhoneNumber" class="form-control" />
+            <ValidationMessage For="@(() => customer.PhoneNumber)" />
+        </div>
+
+        <div class="form-group">
+            <label>Adress:</label>
+            <InputText @bind-Value="customer.Address" class="form-control" />
+            <ValidationMessage For="@(() => customer.Address)" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Spara</button>
+    </EditForm>
+}
+
+@code {
+    [Parameter]
+    public int CustomerId { get; set; }
+
+    private Customer customer;
+    private bool isLoading = true;
+    private string loadError;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Console.WriteLine($"CustomerId: {CustomerId}");
+        try
+        {
+            customer = await ApiService.GetAsync<Customer>($"api/customers/{CustomerId}");
+            if (customer == null)
+            {
+                loadError = "Kunden kunde inte hittas.";
+            }
+        }
+        catch (Exception ex)
+        {
+            loadError = $"Kunde inte ladda kunden: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task UpdateCustomer()
+    {
+        if (customer == null) return;
+
+        try
+        {
+            await ApiService.PutAsync($"api/customers/{CustomerId}", customer);
+            NavigationManager.NavigateTo("/customers");
+        }
+        catch (Exception ex)
+        {
+            loadError = $"Kunde inte uppdatera kunden: {ex.Message}";
+        }
+    }
+}

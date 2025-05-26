@@ -34,11 +34,19 @@ public class CustomerController : ControllerBase
         await _customerRepository.AddAsync(customer);
         return CreatedAtAction(nameof(GetCustomer), new { id = customer.Id }, customer);
     }
-
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateCustomer(int id, Customer customer)
+    public async Task<IActionResult> UpdateCustomer(int id, [FromBody] Customer updatedCustomer)
     {
-        if (id != customer.Id) return BadRequest();
+        var customer = await _customerRepository.GetByIdAsync(id);
+        if (customer == null) return NotFound();
+
+
+        customer.FirstName = updatedCustomer.FirstName;
+        customer.LastName = updatedCustomer.LastName;
+        customer.Email = updatedCustomer.Email;
+        customer.PhoneNumber = updatedCustomer.PhoneNumber;
+        customer.Address = updatedCustomer.Address;
+
         await _customerRepository.UpdateAsync(customer);
         return NoContent();
     }
@@ -49,4 +57,6 @@ public class CustomerController : ControllerBase
         await _customerRepository.DeleteAsync(id);
         return NoContent();
     }
+
+
 }

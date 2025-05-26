@@ -9,7 +9,7 @@ namespace WebbutvecklingLABB2.Shared.Models
 {
     public class Customer
     {
-        [JsonIgnore]
+
         public int Id { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }

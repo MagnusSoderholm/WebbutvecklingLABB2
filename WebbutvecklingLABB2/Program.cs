@@ -24,10 +24,13 @@ builder.Services.AddScoped<IRepository<Product>, ProductRepository>();
 builder.Services.AddScoped<IRepository<Customer>, CustomerRepository>();
 builder.Services.AddScoped<IRepository<Order>, OrderRepository>();
 
+builder.Services.AddScoped<IRepository<Customer>, CustomerRepository>();
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
+
 
 app.UseHttpsRedirection();
 app.UseCors("AllowAll");
