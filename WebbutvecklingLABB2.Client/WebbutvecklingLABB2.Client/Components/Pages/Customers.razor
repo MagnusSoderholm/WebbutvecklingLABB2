@@ -6,15 +6,25 @@
 
 <h3>Kundlista</h3>
 
-<button class="btn btn-primary mb-3" @onclick="NavigateToRegister">Registrera ny kund</button>
+<div class="mb-3">
+    <input type="text" class="form-control d-inline-block" style="width: 250px;" placeholder="Sök på e-post..." @bind="searchTerm" />
+    <button class="btn btn-primary ml-2" @onclick="SearchCustomers">Sök</button>
+    <button class="btn btn-secondary ml-2" @onclick="ClearSearch">Rensa</button>
+</div>
 
-@if (customers == null)
+<button class="btn btn-success mb-3" @onclick="NavigateToRegister">Registrera ny kund</button>
+
+@if (filteredCustomers == null)
 {
     <p>Laddar...</p>
 }
+else if (!filteredCustomers.Any())
+{
+    <p>Inga kunder hittades.</p>
+}
 else
 {
-    @foreach (var customer in customers)
+    @foreach (var customer in filteredCustomers)
     {
         <div class="customer-card mb-3 border p-3 rounded shadow-sm">
             <h4>@customer.FirstName @customer.LastName</h4>
@@ -28,13 +38,16 @@ else
 }
 
 @code {
-    private List<Customer> customers;
+    private List<Customer> customers = new();
+    private List<Customer> filteredCustomers = new();
+    private string searchTerm = "";
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
             customers = await ApiService.GetCustomersAsync();
+            filteredCustomers = customers;
         }
         catch (Exception ex)
         {
@@ -50,5 +63,25 @@ else
     private void EditCustomer(int id)
     {
         NavigationManager.NavigateTo($"/customers/edit/{id}");
+    }
+
+    private void SearchCustomers()
+    {
+        if (string.IsNullOrWhiteSpace(searchTerm))
+        {
+            filteredCustomers = customers;
+        }
+        else
+        {
+            filteredCustomers = customers
+                .Where(c => c.Email != null && c.Email.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+    }
+
+    private void ClearSearch()
+    {
+        searchTerm = "";
+        filteredCustomers = customers;
     }
 }

@@ -1,7 +1,6 @@
 ﻿@using WebbutvecklingLABB2.Shared.Models
-@using WebbutvecklingLABB2.Client.Components.Pages
 
-<div class="product-card">
+<div class="product-card mb-3 border p-3 rounded shadow-sm">
     <h4>@Product.Name</h4>
     <p>@Product.Description</p>
     <p><strong>Produktnummer:</strong> @Product.ProductNumber</p>
@@ -9,23 +8,16 @@
     <p><strong>Kategori:</strong> @Product.Category</p>
     <p><strong>Status:</strong> @(Product.IsDiscontinued ? "Utgått" : "Tillgänglig")</p>
 
-    <button class="btn btn-warning" @onclick="() => OnEdit.InvokeAsync(Product)">Ändra</button>
-    <button class="btn btn-danger" @onclick="() => OnDelete.InvokeAsync(Product)">Ta bort</button>
-    <button class="btn btn-secondary" @onclick="() => OnToggleStatus.InvokeAsync(Product)">
+    <button class="btn btn-warning btn-sm mr-2" @onclick="() => OnEdit.InvokeAsync(Product)">Ändra</button>
+    <button class="btn btn-danger btn-sm mr-2" @onclick="() => OnDelete.InvokeAsync(Product)">Ta bort</button>
+    <button class="btn btn-secondary btn-sm" @onclick="() => OnToggleStatus.InvokeAsync(Product)">
         @(Product.IsDiscontinued ? "Återställ" : "Markera som utgått")
     </button>
 </div>
 
 @code {
-    [Parameter]
-    public Product Product { get; set; }
-
-    [Parameter]
-    public EventCallback<Product> OnEdit { get; set; }
-
-    [Parameter]
-    public EventCallback<Product> OnDelete { get; set; }
-
-    [Parameter]
-    public EventCallback<Product> OnToggleStatus { get; set; }
+    [Parameter] public Product Product { get; set; }
+    [Parameter] public EventCallback<Product> OnEdit { get; set; }
+    [Parameter] public EventCallback<Product> OnDelete { get; set; }
+    [Parameter] public EventCallback<Product> OnToggleStatus { get; set; }
 }

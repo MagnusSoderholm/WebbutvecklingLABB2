@@ -5,14 +5,16 @@
 
 <h3>Produktlista</h3>
 
-<div>
-    <input type="text" @bind="searchTerm" placeholder="Sök produkt..." />
-    <button @onclick="SearchProducts">Sök</button>
+<div class="mb-3">
+    <input type="text" @bind="searchTerm" placeholder="Sök produkt..." class="form-control d-inline-block" style="width: 250px;" />
+    <button class="btn btn-primary ml-2" @onclick="SearchProducts">Sök</button>
+    <button class="btn btn-secondary ml-2" @onclick="ClearSearch">Rensa</button>
 </div>
-<div>   
-    <button @onclick="ShowAddProductModal">Lägg till produkt</button>
-    </div>
-     
+
+<div>
+    <button class="btn btn-success mb-3" @onclick="ShowAddProductModal">Lägg till produkt</button>
+</div>
+
 @if (isAddModalVisible)
 {
     <div style="position:fixed; top:0; left:0; width:100vw; height:100vh; background-color:rgba(0,0,0,0.5); display:flex; justify-content:center; align-items:center; z-index:9999;">
@@ -87,7 +89,12 @@ else
                 (p.ProductNumber?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false)
             ).ToList();
         }
-        StateHasChanged();
+    }
+
+    private void ClearSearch()
+    {
+        searchTerm = "";
+        filteredProducts = products;
     }
 
     private void ShowAddProductModal()
@@ -98,7 +105,6 @@ else
 
     private void EditProduct(Product product)
     {
-        Console.WriteLine($"EditProduct körs: {product.Name}");
         editProduct = new Product
             {
                 Id = product.Id,
@@ -110,7 +116,6 @@ else
                 IsDiscontinued = product.IsDiscontinued
             };
         isAddModalVisible = true;
-        StateHasChanged();
     }
 
     private async Task SaveProduct()
@@ -147,12 +152,6 @@ else
     {
         product.IsDiscontinued = !product.IsDiscontinued;
         await ApiService.UpdateProductAsync(product);
-        SearchProducts();
-    }
-
-    private void OnSearchTermChanged(ChangeEventArgs e)
-    {
-        searchTerm = e.Value?.ToString() ?? "";
         SearchProducts();
     }
 }

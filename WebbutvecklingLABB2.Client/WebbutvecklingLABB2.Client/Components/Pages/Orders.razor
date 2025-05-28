@@ -1,77 +1,37 @@
-﻿@* @page "/orders"
+﻿@page "/orders"
 @using WebbutvecklingLABB2.Shared.Models
-
 @inject HttpClient Http
 
 <h3>Beställningar</h3>
 
-@if (orders == null)
-{
-    <p>Loading...</p>
-}
-else
-{
-    @foreach (var order in orders)
-    {
-        <div class="order-card">
-            <h4>Order ID: @order.Id</h4>
-            <p>Kund: @order.Customer.FirstName @order.Customer.LastName</p>
-            <p>Beställningsdatum: @order.OrderDate.ToString("yyyy-MM-dd HH:mm:ss")</p>
+<div class="mb-3">
+    <input type="text" @bind="searchTerm" placeholder="Sök på kundens namn..." class="form-control d-inline-block" style="width: 250px;" />
+    <button class="btn btn-primary ml-2" @onclick="SearchOrders">Sök</button>
+    <button class="btn btn-secondary ml-2" @onclick="ClearSearch">Rensa</button>
+</div>
 
-            <h5>Beställningsvaror:</h5>
-            <ul>
-                @foreach (var orderItem in order.OrderItems)
-                {
-                    <li>
-                        @orderItem.Product.Name - Antal: @orderItem.Quantity
-                    </li>
-                }
-            </ul>
-        </div>
-    }
-}
-
-@code {
-    private List<Order> orders;
-
-    protected override async Task OnInitializedAsync()
-    {
-        orders = await Http.GetFromJsonAsync<List<Order>>("api/orders");
-    }
-}
- *@
-
-
-
-
-
-            @page "/orders"
-@using WebbutvecklingLABB2.Shared.Models
-@using WebbutvecklingLABB2.Client.Services
-@inject HttpClient Http
-
-<h3>Beställningar</h3>
-
-@if (orders == null)
+@if (filteredOrders == null)
 {
     <p>Laddar...</p>
 }
+else if (!filteredOrders.Any())
+{
+    <p>Inga beställningar hittades.</p>
+}
 else
 {
-    @foreach (var order in orders)
+    @foreach (var order in filteredOrders)
     {
-        <div class="order-card">
+        <div class="order-card border rounded p-3 mb-3">
             <h4>Order ID: @order.Id</h4>
-            <p>Kund: @order.Customer.FirstName @order.Customer.LastName</p>
-            <p>Beställningsdatum: @order.OrderDate.ToString("yyyy-MM-dd HH:mm:ss")</p>
+            <p><strong>Kund:</strong> @order.Customer.FirstName @order.Customer.LastName</p>
+            <p><strong>Beställningsdatum:</strong> @order.OrderDate.ToString("yyyy-MM-dd HH:mm:ss")</p>
 
             <h5>Beställningsvaror:</h5>
             <ul>
-                @foreach (var orderItem in order.OrderItems)
+                @foreach (var item in order.OrderItems)
                 {
-                    <li>
-                        @orderItem.Product.Name - Antal: @orderItem.Quantity
-                    </li>
+                    <li>@item.Product.Name – Antal: @item.Quantity</li>
                 }
             </ul>
         </div>
@@ -79,17 +39,42 @@ else
 }
 
 @code {
-    private List<Order> orders;
+    private string searchTerm = "";
+    private List<Order> orders = new();
+    private List<Order> filteredOrders = new();
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
             orders = await Http.GetFromJsonAsync<List<Order>>("api/orders");
+            filteredOrders = orders;
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error fetching orders: {ex.Message}");
+            Console.WriteLine($"Fel vid hämtning av beställningar: {ex.Message}");
         }
+    }
+
+    private void SearchOrders()
+    {
+        if (string.IsNullOrWhiteSpace(searchTerm))
+        {
+            filteredOrders = orders;
+        }
+        else
+        {
+            filteredOrders = orders.Where(o =>
+                o.Customer != null &&
+                $"{o.Customer.FirstName} {o.Customer.LastName}"
+                    .Contains(searchTerm, StringComparison.OrdinalIgnoreCase)
+            ).ToList();
+        }
+    }
+
+    private void ClearSearch()
+    {
+        searchTerm = "";
+        filteredOrders = orders;
     }
 }
